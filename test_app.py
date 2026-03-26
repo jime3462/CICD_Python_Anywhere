@@ -59,7 +59,12 @@ def test_get_song_by_id_returns_created_song(test_client):
     response = test_client.get(f"/songs/{song_id}")
 
     assert response.status_code == 200
-    assert response.get_json() == {"id": song_id, "title": "Numb", "artist_id": 7}
+    assert response.get_json() == {
+        "id": song_id,
+        "title": "Numb",
+        "artist_id": 7,
+        "artist_name": "Unknown",
+    }
 
 
 def test_get_all_artists_returns_empty_list_initially(test_client):
@@ -90,3 +95,14 @@ def test_search_songs_by_keyword_matches_titles_case_insensitive(test_client):
         "Bohemian Rhapsody",
         "Rhapsody in Blue",
     ]
+
+
+def test_create_song_with_new_artist(test_client):
+    new_song = {"title": "Test Song", "artist_id": 1}
+    create_resp = test_client.post("/songs", json=new_song)
+    assert create_resp.status_code == 201
+
+    created = create_resp.get_json()
+    assert created["title"] == "Test Song"
+    assert created["artist_id"] == 1
+    assert "id" in created
