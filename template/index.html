@@ -13,10 +13,17 @@
 	<div class="noise"></div>
 	<header class="topbar">
 		<a class="brand" href="/">WaveRoom</a>
-		<nav>
-			<a href="/ui/songs">Songs</a>
-			<a href="/ui/artists">Artists</a>
-		</nav>
+		<div class="topbar-right">
+			<nav>
+				<a href="/ui/songs">Songs</a>
+				<a href="/ui/artists">Artists</a>
+			</nav>
+			<form class="topbar-search" action="/ui/search-results" method="get">
+				<label for="headerKeyword" class="sr-only">Search songs</label>
+				<input id="headerKeyword" name="keyword" type="text" placeholder="Search songs..." required>
+				<button class="btn primary" type="submit">Search</button>
+			</form>
+		</div>
 	</header>
 
 	<main class="hero">
@@ -26,16 +33,13 @@
 			<p class="subtitle">
 				Create songs, browse tracks, fetch by ID, list artists, and run fast keyword search from a polished interface.
 			</p>
-			<div class="actions">
-				<a class="btn primary" href="/ui/songs">Open Songs</a>
-				<a class="btn ghost" href="/ui/artists">Open Artists/Search</a>
-			</div>
 		</section>
 
 		<section class="card-grid">
 			<article class="card">
-				<h3>GET /songs</h3>
-				<p>See your full catalog and track count in one response.</p>
+				<h3>Live Songs Catalog</h3>
+				<p>Automatically loaded from GET /songs when this page opens.</p>
+				<div class="result" id="homeSongsResult">Loading songs...</div>
 			</article>
 			<article class="card">
 				<h3>POST /songs</h3>
@@ -47,5 +51,6 @@
 			</article>
 		</section>
 	</main>
+	<script src="/assets/app-ui.js"></script>
 </body>
 </html>

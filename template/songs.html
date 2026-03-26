@@ -13,22 +13,22 @@
   <div class="noise"></div>
   <header class="topbar">
     <a class="brand" href="/">WaveRoom</a>
-    <nav>
-      <a href="/ui/songs">Songs</a>
-      <a href="/ui/artists">Artists</a>
-    </nav>
+    <div class="topbar-right">
+      <nav>
+        <a href="/ui/songs">Songs</a>
+        <a href="/ui/artists">Artists</a>
+      </nav>
+      <form class="topbar-search" action="/ui/search-results" method="get">
+        <label for="songsKeyword" class="sr-only">Search songs</label>
+        <input id="songsKeyword" name="keyword" type="text" placeholder="Search songs..." required>
+        <button class="btn primary" type="submit">Search</button>
+      </form>
+    </div>
   </header>
 
   <main class="page">
     <h2>Songs Console</h2>
     <section class="grid">
-      <article class="panel">
-        <h3>All Songs</h3>
-        <p>Calls GET /songs</p>
-        <button class="btn primary" id="btnAllSongs">Get Songs</button>
-        <div class="result" id="allSongsResult">No data yet.</div>
-      </article>
-
       <article class="panel">
         <h3>Song by ID</h3>
         <p>Calls GET /songs/&lt;id&gt;</p>

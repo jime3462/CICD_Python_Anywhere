@@ -114,7 +114,8 @@ def search_songs_by_keyword():
         return jsonify({"error": "Query parameter 'keyword' is required"}), 400
 
     matched = [song for song in songs if keyword in song.get("title", "").lower()]
-    return jsonify({"songs": matched, "count": len(matched)})
+    enriched_matches = [_enrich_song_with_artist(song) for song in matched]
+    return jsonify({"songs": enriched_matches, "count": len(enriched_matches)})
 
 
 # Serve home page
@@ -136,6 +137,13 @@ def songs_page():
 def artists_page():
     """Serve the artists/search page."""
     return send_from_directory("template", "artists.html")
+
+
+# Serve search results page
+@app.route("/ui/search-results", methods=["GET"])
+def search_results_page():
+    """Serve the search results page with a songs table."""
+    return send_from_directory("template", "search-results.html")
 
 
 # Serve UI assets (CSS, JS)

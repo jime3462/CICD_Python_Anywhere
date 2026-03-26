@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WaveRoom | Artists</title>
+  <title>WaveRoom | Search Results</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
@@ -19,36 +19,18 @@
         <a href="/ui/artists">Artists</a>
       </nav>
       <form class="topbar-search" action="/ui/search-results" method="get">
-        <label for="artistsKeyword" class="sr-only">Search songs</label>
-        <input id="artistsKeyword" name="keyword" type="text" placeholder="Search songs..." required>
+        <label for="resultsKeyword" class="sr-only">Search songs</label>
+        <input id="resultsKeyword" name="keyword" type="text" placeholder="Search songs..." required>
         <button class="btn primary" type="submit">Search</button>
       </form>
     </div>
   </header>
 
   <main class="page">
-    <h2>Artists Console</h2>
-    <section class="grid">
-      <article class="panel">
-        <h3>All Artists</h3>
-        <p>Calls GET /artists</p>
-        <button class="btn primary" id="btnAllArtists">Refresh Artists</button>
-        <div class="result" id="allArtistsResult">No data yet.</div>
-      </article>
-
-      <article class="panel">
-        <h3>Add Artist</h3>
-        <p>Calls POST /artists</p>
-        <form id="createArtistForm">
-          <label>
-            Artist Name
-            <input type="text" id="newArtistName" placeholder="e.g., Drake, Taylor Swift" required>
-          </label>
-          <button class="btn primary" type="submit">Create Artist</button>
-        </form>
-        <div class="result" id="createArtistResult">No data yet.</div>
-      </article>
-
+    <h2>Search Results</h2>
+    <section class="panel">
+      <p class="note" id="searchSummary">Searching...</p>
+      <div class="result" id="searchPageResult">No data yet.</div>
     </section>
   </main>
 

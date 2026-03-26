@@ -111,20 +111,8 @@ async function callApi(url, options = {}) {
 }
 
 function initSongsPage() {
-  const btnAllSongs = document.getElementById("btnAllSongs");
   const songByIdForm = document.getElementById("songByIdForm");
   const createSongForm = document.getElementById("createSongForm");
-
-  if (btnAllSongs) {
-    btnAllSongs.addEventListener("click", async () => {
-      try {
-        const data = await callApi("/songs");
-        renderResult("allSongsResult", data);
-      } catch (err) {
-        renderResult("allSongsResult", err, false);
-      }
-    });
-  }
 
   if (songByIdForm) {
     songByIdForm.addEventListener("submit", async (event) => {
@@ -169,7 +157,6 @@ function initSongsPage() {
 function initArtistsPage() {
   const btnAllArtists = document.getElementById("btnAllArtists");
   const createArtistForm = document.getElementById("createArtistForm");
-  const searchSongsForm = document.getElementById("searchSongsForm");
 
   if (btnAllArtists) {
     btnAllArtists.addEventListener("click", async () => {
@@ -199,19 +186,64 @@ function initArtistsPage() {
     });
   }
 
-  if (searchSongsForm) {
-    searchSongsForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const keyword = document.getElementById("songKeywordInput").value;
-      try {
-        const data = await callApi(`/songs/search?keyword=${encodeURIComponent(keyword)}`);
-        renderResult("searchSongsResult", data);
-      } catch (err) {
-        renderResult("searchSongsResult", err, false);
-      }
-    });
+}
+
+function initSearchResultsPage() {
+  const summary = document.getElementById("searchSummary");
+  const resultNode = document.getElementById("searchPageResult");
+  if (!summary || !resultNode) {
+    return;
   }
+
+  const params = new URLSearchParams(window.location.search);
+  const keyword = (params.get("keyword") || "").trim();
+  const keywordInput = document.getElementById("resultsKeyword");
+  if (keywordInput) {
+    keywordInput.value = keyword;
+  }
+
+  if (!keyword) {
+    summary.textContent = "Enter a keyword in the header search bar to see results.";
+    resultNode.className = "result";
+    resultNode.textContent = "No search keyword provided.";
+    return;
+  }
+
+  summary.textContent = `Showing matches for: "${keyword}"`;
+
+  callApi(`/songs/search?keyword=${encodeURIComponent(keyword)}`)
+    .then((data) => {
+      renderResult("searchPageResult", data);
+    })
+    .catch((err) => {
+      renderResult("searchPageResult", err, false);
+    });
+}
+
+function initHomeSongs() {
+  const homeSongsResult = document.getElementById("homeSongsResult");
+  if (!homeSongsResult) {
+    return;
+  }
+
+  callApi("/songs")
+    .then((data) => {
+      const sortedSongs = Array.isArray(data.songs)
+        ? [...data.songs].sort((a, b) =>
+            (a.title || "").localeCompare(b.title || "", undefined, { sensitivity: "base" })
+          )
+        : [];
+      renderResult("homeSongsResult", {
+        songs: sortedSongs,
+        count: sortedSongs.length,
+      });
+    })
+    .catch((err) => {
+      renderResult("homeSongsResult", err, false);
+    });
 }
 
 initSongsPage();
 initArtistsPage();
+initSearchResultsPage();
+initHomeSongs();
