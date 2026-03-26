@@ -1,4 +1,8 @@
 from flask import Flask, jsonify, request, send_from_directory
+import subprocess
+import hmac
+import hashlib
+import os
 
 app = Flask(__name__)
 
@@ -139,6 +143,57 @@ def artists_page():
 def ui_assets(filename):
     """Serve CSS/JS assets for the UI pages."""
     return send_from_directory("template", filename)
+
+# Read webhook secret from environment. Do not use an insecure default fallback.
+WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET") or os.environ.get("GITHUB_WEBHOOK_SECRET")
+
+
+def _is_valid_github_signature(payload, signature_header):
+    """Validate GitHub webhook signature using HMAC SHA-256."""
+    if not WEBHOOK_SECRET or not signature_header:
+        return False
+    if not signature_header.startswith("sha256="):
+        return False
+
+    provided_signature = signature_header.split("=", 1)[1]
+    expected_signature = hmac.new(
+        WEBHOOK_SECRET.encode("utf-8"),
+        msg=payload,
+        digestmod=hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(expected_signature, provided_signature)
+
+
+# Git pull webhook endpoint
+@app.route('/gitpull', methods=['POST'])
+def gitpull():
+    if not WEBHOOK_SECRET:
+        return jsonify({"error": "WEBHOOK_SECRET is not configured"}), 500
+
+    payload = request.get_data(cache=False) or b""
+    signature_header = request.headers.get("X-Hub-Signature-256", "")
+    if not _is_valid_github_signature(payload, signature_header):
+        return jsonify({"error": "Invalid webhook signature"}), 403
+
+    repo_path = '/home/jime3462/CICD_Python_Anywhere'
+    try:
+        result = subprocess.run(
+            ['git', '-C', repo_path, 'pull', '--ff-only', 'origin', 'main'],
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        return jsonify({"error": "git pull timed out"}), 504
+
+    if result.returncode != 0:
+        error_text = result.stderr.strip() or result.stdout.strip() or "git pull failed"
+        return jsonify({"error": error_text}), 500
+
+    return jsonify({"message": "Code updated via git pull."}), 200
+
+
 
 
 if __name__ == "__main__":
