@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>WaveRoom</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+	<div class="noise"></div>
+	<header class="topbar">
+		<a class="brand" href="/">WaveRoom</a>
+		<nav>
+			<a href="/ui/songs">Songs</a>
+			<a href="/ui/artists">Artists</a>
+		</nav>
+	</header>
+
+	<main class="hero">
+		<section>
+			<p class="eyebrow">Build Your Library</p>
+			<h1>Control Your Music API Like A Streaming Console</h1>
+			<p class="subtitle">
+				Create songs, browse tracks, fetch by ID, list artists, and run fast keyword search from a polished interface.
+			</p>
+			<div class="actions">
+				<a class="btn primary" href="/ui/songs">Open Songs</a>
+				<a class="btn ghost" href="/ui/artists">Open Artists/Search</a>
+			</div>
+		</section>
+
+		<section class="card-grid">
+			<article class="card">
+				<h3>GET /songs</h3>
+				<p>See your full catalog and track count in one response.</p>
+			</article>
+			<article class="card">
+				<h3>POST /songs</h3>
+				<p>Add new tracks with title and artist ID instantly.</p>
+			</article>
+			<article class="card">
+				<h3>GET /songs/search</h3>
+				<p>Find songs fast with case-insensitive keyword matching.</p>
+			</article>
+		</section>
+	</main>
+</body>
+</html>

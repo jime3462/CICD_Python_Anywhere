@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WaveRoom | Songs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="topbar">
+    <a class="brand" href="/">WaveRoom</a>
+    <nav>
+      <a href="/ui/songs">Songs</a>
+      <a href="/ui/artists">Artists</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <h2>Songs Console</h2>
+    <section class="grid">
+      <article class="panel">
+        <h3>All Songs</h3>
+        <p>Calls GET /songs</p>
+        <button class="btn primary" id="btnAllSongs">Get Songs</button>
+        <div class="result" id="allSongsResult">No data yet.</div>
+      </article>
+
+      <article class="panel">
+        <h3>Song by ID</h3>
+        <p>Calls GET /songs/&lt;id&gt;</p>
+        <form id="songByIdForm">
+          <label>
+            Song ID
+            <input type="number" id="songIdInput" min="1" required>
+          </label>
+          <button class="btn ghost" type="submit">Get Song</button>
+        </form>
+        <div class="result" id="songByIdResult">No data yet.</div>
+      </article>
+
+      <article class="panel">
+        <h3>Add New Song</h3>
+        <p>Calls POST /songs</p>
+        <form id="createSongForm">
+          <label>
+            Title
+            <input type="text" id="newSongTitle" placeholder="Track title" required>
+          </label>
+          <label>
+            Artist Name
+            <input type="text" id="newSongArtistName" placeholder="e.g., The Beatles, Adele" required>
+          </label>
+          <button class="btn primary" type="submit">Create Song</button>
+        </form>
+        <div class="result" id="createSongResult">No data yet.</div>
+      </article>
+    </section>
+  </main>
+
+  <script src="/assets/app-ui.js"></script>
+</body>
+</html>

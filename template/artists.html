@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WaveRoom | Artists & Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="topbar">
+    <a class="brand" href="/">WaveRoom</a>
+    <nav>
+      <a href="/ui/songs">Songs</a>
+      <a href="/ui/artists">Artists</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <h2>Artists + Search Console</h2>
+    <section class="grid">
+      <article class="panel">
+        <h3>All Artists</h3>
+        <p>Calls GET /artists</p>
+        <button class="btn primary" id="btnAllArtists">Refresh Artists</button>
+        <div class="result" id="allArtistsResult">No data yet.</div>
+      </article>
+
+      <article class="panel">
+        <h3>Add Artist</h3>
+        <p>Calls POST /artists</p>
+        <form id="createArtistForm">
+          <label>
+            Artist Name
+            <input type="text" id="newArtistName" placeholder="e.g., Drake, Taylor Swift" required>
+          </label>
+          <button class="btn primary" type="submit">Create Artist</button>
+        </form>
+        <div class="result" id="createArtistResult">No data yet.</div>
+      </article>
+
+      <article class="panel">
+        <h3>Search Songs</h3>
+        <p>Calls GET /songs/search?keyword=...</p>
+        <form id="searchSongsForm">
+          <label>
+            Keyword
+            <input type="text" id="songKeywordInput" placeholder="Try: love, blue, night" required>
+          </label>
+          <button class="btn ghost" type="submit">Search</button>
+        </form>
+        <div class="result" id="searchSongsResult">No data yet.</div>
+      </article>
+    </section>
+  </main>
+
+  <script src="/assets/app-ui.js"></script>
+</body>
+</html>
