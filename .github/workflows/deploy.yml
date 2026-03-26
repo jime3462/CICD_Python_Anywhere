@@ -13,10 +13,24 @@ jobs:
       - name: Trigger PythonAnywhere gitpull webhook
         run: |
           echo "Triggering gitpull webhook on PythonAnywhere..."
-          curl --fail -sS -X POST https://jime3462.pythonanywhere.com/gitpull \
+          status_code=$(curl -sS -o /tmp/gitpull_response.txt -w "%{http_code}" -X POST https://jime3462.pythonanywhere.com/gitpull \
             -H "Content-Type: application/json" \
             -H "X-Hub-Signature-256: sha256=$(echo -n '{}' | openssl dgst -sha256 -hmac '${{ secrets.GITHUB_WEBHOOK_SECRET }}' | cut -d' ' -f2)" \
-            -d '{}'
+            -d '{}')
+
+          echo "gitpull webhook HTTP status: ${status_code}"
+          if [ "${status_code}" = "404" ]; then
+            echo "Warning: /gitpull route not found on deployed app."
+            echo "Run a one-time manual git pull + web app reload on PythonAnywhere to bootstrap deployment."
+            cat /tmp/gitpull_response.txt
+            exit 0
+          fi
+
+          if [ "${status_code}" -lt 200 ] || [ "${status_code}" -ge 300 ]; then
+            echo "Error: gitpull webhook call failed."
+            cat /tmp/gitpull_response.txt
+            exit 1
+          fi
 
       - name: Wait a few seconds for git pull to finish
         run: sleep 30
