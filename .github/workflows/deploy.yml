@@ -16,16 +16,7 @@ jobs:
         run: |
           echo "Triggering gitpull webhook on PythonAnywhere..."
           payload='{}'
-          signature=$(python3 - <<'PY'
-import hashlib
-import hmac
-import os
-
-secret = os.environ["WEBHOOK_SECRET"].encode("utf-8")
-payload = b"{}"
-print(hmac.new(secret, payload, hashlib.sha256).hexdigest())
-PY
-)
+          signature=$(python3 -c "import os,hmac,hashlib; print(hmac.new(os.environ['WEBHOOK_SECRET'].encode('utf-8'), b'{}', hashlib.sha256).hexdigest())")
 
           status_code=$(curl -sS -o /tmp/gitpull_response.txt -w "%{http_code}" -X POST https://jime3462.pythonanywhere.com/gitpull \
             -H "Content-Type: application/json" \
