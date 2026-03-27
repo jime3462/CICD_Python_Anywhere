@@ -21,12 +21,18 @@ jobs:
       - name: Validate required secrets
         env:
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          WEBHOOK_SECRET_VAR: ${{ vars.WEBHOOK_SECRET }}
           PA_TOKEN: ${{ secrets.PYTHONANYWHERE_API_TOKEN }}
         run: |
           set -euo pipefail
 
-          if [ -z "${WEBHOOK_SECRET}" ]; then
-            echo "Missing required secret: WEBHOOK_SECRET"
+          effective_webhook_secret="${WEBHOOK_SECRET}"
+          if [ -z "${effective_webhook_secret}" ]; then
+            effective_webhook_secret="${WEBHOOK_SECRET_VAR}"
+          fi
+
+          if [ -z "${effective_webhook_secret}" ]; then
+            echo "Missing webhook value. Set either Actions secret WEBHOOK_SECRET or repository variable WEBHOOK_SECRET."
             exit 1
           fi
 
@@ -38,11 +44,20 @@ jobs:
       - name: Trigger PythonAnywhere gitpull webhook
         env:
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          WEBHOOK_SECRET_VAR: ${{ vars.WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
 
           payload='{}'
-          signature=$(SECRET_VALUE="${WEBHOOK_SECRET}" python3 -c "import os,hmac,hashlib; print(hmac.new(os.environ['SECRET_VALUE'].encode('utf-8'), b'{}', hashlib.sha256).hexdigest())")
+          effective_webhook_secret="${WEBHOOK_SECRET}"
+          if [ -z "${effective_webhook_secret}" ]; then
+            effective_webhook_secret="${WEBHOOK_SECRET_VAR}"
+            echo "Using repository variable WEBHOOK_SECRET for webhook signing."
+          else
+            echo "Using Actions secret WEBHOOK_SECRET for webhook signing."
+          fi
+
+          signature=$(SECRET_VALUE="${effective_webhook_secret}" python3 -c "import os,hmac,hashlib; print(hmac.new(os.environ['SECRET_VALUE'].encode('utf-8'), b'{}', hashlib.sha256).hexdigest())")
 
           echo "Triggering /gitpull webhook..."
           status_code=$(curl -sS --retry 3 --retry-delay 2 --retry-connrefused \
