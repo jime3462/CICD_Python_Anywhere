@@ -7,14 +7,12 @@ function renderSongsTable(songs) {
   html += "<tr style='background:#16c1f3; color:#081018; font-weight:bold;'>";
   html += "<th style='padding:8px; text-align:left; border:1px solid #555;'>Song Name</th>";
   html += "<th style='padding:8px; text-align:left; border:1px solid #555;'>Artist</th>";
-  html += "<th style='padding:8px; text-align:left; border:1px solid #555;'>Artist ID</th>";
   html += "</tr>";
   
   songs.forEach(song => {
     html += "<tr>";
     html += `<td style='padding:8px; border:1px solid #555;'>${song.title || "N/A"}</td>`;
     html += `<td style='padding:8px; border:1px solid #555;'>${song.artist_name || "Unknown"}</td>`;
-    html += `<td style='padding:8px; border:1px solid #555;'>${song.artist_id || "N/A"}</td>`;
     html += "</tr>";
   });
   
