@@ -21,12 +21,13 @@ jobs:
       - name: Validate required secrets
         env:
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          GITHUB_WEBHOOK_SECRET: ${{ secrets.GITHUB_WEBHOOK_SECRET }}
           PA_TOKEN: ${{ secrets.PYTHONANYWHERE_API_TOKEN }}
         run: |
           set -euo pipefail
 
-          if [ -z "${WEBHOOK_SECRET}" ]; then
-            echo "Missing required secret: WEBHOOK_SECRET"
+          if [ -z "${WEBHOOK_SECRET}" ] && [ -z "${GITHUB_WEBHOOK_SECRET}" ]; then
+            echo "Missing required webhook secret. Set either WEBHOOK_SECRET or GITHUB_WEBHOOK_SECRET."
             exit 1
           fi
 
@@ -38,11 +39,17 @@ jobs:
       - name: Trigger PythonAnywhere gitpull webhook
         env:
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          GITHUB_WEBHOOK_SECRET: ${{ secrets.GITHUB_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
 
           payload='{}'
-          signature=$(python3 -c "import os,hmac,hashlib; print(hmac.new(os.environ['WEBHOOK_SECRET'].encode('utf-8'), b'{}', hashlib.sha256).hexdigest())")
+          secret_value="${WEBHOOK_SECRET}"
+          if [ -z "${secret_value}" ]; then
+            secret_value="${GITHUB_WEBHOOK_SECRET}"
+          fi
+
+          signature=$(SECRET_VALUE="${secret_value}" python3 -c "import os,hmac,hashlib; print(hmac.new(os.environ['SECRET_VALUE'].encode('utf-8'), b'{}', hashlib.sha256).hexdigest())")
 
           echo "Triggering /gitpull webhook..."
           status_code=$(curl -sS --retry 3 --retry-delay 2 --retry-connrefused \
