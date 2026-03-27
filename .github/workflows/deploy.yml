@@ -3,45 +3,75 @@ name: Deploy to PythonAnywhere
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: pythonanywhere-deploy-main
+  cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate required secrets
+        env:
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          PA_TOKEN: ${{ secrets.PYTHONANYWHERE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${WEBHOOK_SECRET}" ]; then
+            echo "Missing required secret: WEBHOOK_SECRET"
+            exit 1
+          fi
+
+          if [ -z "${PA_TOKEN}" ]; then
+            echo "Missing required secret: PYTHONANYWHERE_API_TOKEN"
+            exit 1
+          fi
 
       - name: Trigger PythonAnywhere gitpull webhook
         env:
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
         run: |
-          echo "Triggering gitpull webhook on PythonAnywhere..."
+          set -euo pipefail
+
           payload='{}'
           signature=$(python3 -c "import os,hmac,hashlib; print(hmac.new(os.environ['WEBHOOK_SECRET'].encode('utf-8'), b'{}', hashlib.sha256).hexdigest())")
 
-          status_code=$(curl -sS -o /tmp/gitpull_response.txt -w "%{http_code}" -X POST https://jime3462.pythonanywhere.com/gitpull \
+          echo "Triggering /gitpull webhook..."
+          status_code=$(curl -sS --retry 3 --retry-delay 2 --retry-connrefused \
+            -o /tmp/gitpull_response.txt \
+            -w "%{http_code}" \
+            -X POST "https://jime3462.pythonanywhere.com/gitpull" \
             -H "Content-Type: application/json" \
             -H "X-Hub-Signature-256: sha256=${signature}" \
             -d "${payload}")
 
           echo "gitpull webhook HTTP status: ${status_code}"
-          if [ "${status_code}" = "404" ]; then
-            echo "Warning: /gitpull route not found on deployed app."
-            echo "Run a one-time manual git pull + web app reload on PythonAnywhere to bootstrap deployment."
-            cat /tmp/gitpull_response.txt
-            exit 0
-          fi
-
           if [ "${status_code}" -lt 200 ] || [ "${status_code}" -ge 300 ]; then
-            echo "Error: gitpull webhook call failed."
+            echo "Webhook failed. Response body:"
             cat /tmp/gitpull_response.txt
             exit 1
           fi
 
-      - name: Wait a few seconds for git pull to finish
-        run: sleep 30
+      - name: Wait for git pull to settle
+        run: sleep 20
 
       - name: Reload PythonAnywhere web app
+        env:
+          PA_TOKEN: ${{ secrets.PYTHONANYWHERE_API_TOKEN }}
         run: |
+          set -euo pipefail
+
           echo "Reloading PythonAnywhere web app..."
-          curl --fail -sS -X POST "https://www.pythonanywhere.com/api/v0/user/jime3462/webapps/jime3462.pythonanywhere.com/reload/" \
-            -H "Authorization: Token ${{ secrets.PYTHONANYWHERE_API_TOKEN }}"
+          curl -sS --fail-with-body --retry 3 --retry-delay 2 --retry-connrefused \
+            -X POST "https://www.pythonanywhere.com/api/v0/user/jime3462/webapps/jime3462.pythonanywhere.com/reload/" \
+            -H "Authorization: Token ${PA_TOKEN}"
+
+          echo "Deploy finished successfully."
